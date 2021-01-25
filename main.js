@@ -2,8 +2,16 @@ window.addEventListener('load', e =>{
     var strike = document.querySelector('#strike')
     var start = document.querySelector('#start')
     var pause = document.querySelector('#pause')
+    var count = document.querySelector('#count')
+    var ctx = count.getContext('2d')
     var t_e = {}
+    var cnt = 0
     var intID 
+    
+    // count box setup
+    ctx.strokeRect(15,15,25,25)
+    ctx.fill()
+    ctx.fillText('1',25,26)
     
 
     // plays sound
@@ -15,15 +23,23 @@ window.addEventListener('load', e =>{
     // logs the beat
     function beat(tempo,subdivison){
         delay = 60000/tempo
-        var cnt = 0
+        
 
         intID = setInterval(function(){
-            
-            if(cnt > subdivison){
+            cnt += 1
+            ctx.clearRect(15,15,25,25)
+
+            if(cnt >= subdivison){
                 tt = new Date()
                 t_e = tt.getTime()
+                c = cnt % subdivison + 1
+                ctx.fillText(c.toString(),25,26)
+                
             }
-            cnt += 1
+            else{
+                ctx.fillText(cnt.toString(),25,26)
+            }
+            
         },delay)
     }
 
@@ -34,11 +50,11 @@ window.addEventListener('load', e =>{
         var t_o = t.getTime()
         
         
-        if(t_o > t_e + 0.5*6E4/tempo){    
+        if(t_o > t_e + 0.5*6E4/tempo){           // rushing  
             var delta = t_e + 6E4/tempo - t_o 
             var score = -Math.exp(delta/1000)
         }
-        else{          
+        else{                                    // dragging
             var delta = t_o - t_e      
             var score = Math.exp(delta/1000)
         }
