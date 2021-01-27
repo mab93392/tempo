@@ -16,7 +16,7 @@ window.addEventListener('load', e =>{
     // pause
     function pse(){
         clearInterval(intID1)
-        // clearInterval(intID2)
+
     }
 
     // plays sound
@@ -74,13 +74,13 @@ window.addEventListener('load', e =>{
 
 
     // evaluates timing accuracy
-    function timing(t_e,tempo){
+    function timing(t_e,tempo,subdivision){
         var t = new Date()
         var t_o = t.getTime()
         
         
-        if(t_o > t_e + 0.5*6E4/tempo){           // rushing  
-            var delta = t_e + 6E4/tempo - t_o 
+        if(t_o > t_e + 6E4/tempo/subdivision){           // rushing  
+            var delta = t_e - t_o
             var score = -Math.exp(delta/1000)
         }
         else{                                    // dragging
@@ -88,18 +88,17 @@ window.addEventListener('load', e =>{
             var score = Math.exp(delta/1000)
         }
 
-        console.log(score)
     }
     
     
     strike.addEventListener('click',function(){
         audio_play('strike')
-        timing(t_e,120)
+        timing(t_e,120,1)
         
     })
 
     start.addEventListener('click', e => {
-        beat(60,2,6)
+        beat(60,1,6)
     })
 
     pause.addEventListener('click', function(){
