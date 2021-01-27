@@ -6,13 +6,18 @@ window.addEventListener('load', e =>{
     var ctx = count.getContext('2d')
     var t_e = {}
     var cnt = 0
-    var intID 
+    var intID1
     
     // count box setup
     ctx.strokeRect(15,15,25,25)
     ctx.fill()
     ctx.fillText('1',25,26)
     
+    // pause
+    function pse(){
+        clearInterval(intID1)
+        // clearInterval(intID2)
+    }
 
     // plays sound
     function audio_play(name){
@@ -21,23 +26,47 @@ window.addEventListener('load', e =>{
     }
 
     // logs the beat
-    function beat(tempo,subdivison){
-        delay = 60000/tempo
+    function beat(tempo,subdivision,bpms){ //bpms = beats per measure
+        delay = 60000/tempo // one beat
         
-
-        intID = setInterval(function(){
+        // first loop handles beat
+        intID1 = setInterval(function(){
+            var intID2 // interval id for subdivision clock
             cnt += 1
-            ctx.clearRect(15,15,25,25)
-
-            if(cnt >= subdivison){
-                tt = new Date()
-                t_e = tt.getTime()
-                c = cnt % subdivison + 1
-                ctx.fillText(c.toString(),25,26)
+            ctx.clearRect(15,15,25,25) // clears countbox
+            let sub_cnt = 1
+            
+            if(cnt > bpms){ // after count off
                 
+                intID2 = setInterval(function(){
+                    tt = new Date()
+                    t_e = tt.getTime()
+                    
+                    if(sub_cnt == subdivision){
+                        clearInterval(intID2)
+                        sub_cnt = 1
+                        
+                    }
+                    else{
+                        sub_cnt += 1
+                        
+                    }
+                },delay/subdivision)
+                
+                //handles count box
+                if(cnt % bpms == 0){          // last beat 
+                    c = bpms
+                }
+                else{                         // all other beats
+                    c = cnt % bpms 
+                }
+
+                ctx.fillText(c.toString(),25,26)//updates count box
+
             }
-            else{
-                ctx.fillText(cnt.toString(),25,26)
+            else{ // during count off
+                
+                ctx.fillText(cnt,25,26) // updates countbox
             }
             
         },delay)
@@ -70,11 +99,11 @@ window.addEventListener('load', e =>{
     })
 
     start.addEventListener('click', e => {
-        beat(120,4)
+        beat(60,2,6)
     })
 
     pause.addEventListener('click', function(){
-        clearInterval(intID)
+        pse()
     })
 
     
