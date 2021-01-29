@@ -3,11 +3,27 @@ window.addEventListener('load', e =>{
     var start = document.querySelector('#start')
     var pause = document.querySelector('#pause')
     var count = document.querySelector('#count')
+    var tap_t = document.querySelector('#tap')
+    var tmp_inp = document.querySelector('#tempo')
     var ctx = count.getContext('2d')
     var t_e = {}
     var cnt = 0
     var intID1
+    var tap_i = 0
+    var taps = []
+
+
     
+    // average
+    function mean(arr){
+        l = arr.length
+        var sum = 0
+        for(var i = 0; i < l; i++){
+            sum = sum + arr[i]
+        }
+        return sum/l
+    }
+
     // count box setup
     ctx.strokeRect(15,15,25,25)
     ctx.fill()
@@ -18,7 +34,25 @@ window.addEventListener('load', e =>{
         clearInterval(intID1)
 
     }
-
+    // handles a tap for tempo option
+    function tap_temp(){
+        diff = []
+        diff_i = tap_i - 1
+        now = new Date()
+        taps.push(now.getTime())
+        if(taps.length > 1){
+            for(var i = 1; i < taps.length; i++){
+                diff.push(taps[i] - taps[i-1])
+                if(diff[i] > 1E4){
+                    taps = []
+                    taps.push(now.getTime())
+                }
+            }
+            tmp = Math.round(60/(mean(diff)/1000))
+            tmp_inp.setAttribute('value',tmp.toString())
+        }
+        
+    }
     // plays sound
     function audio_play(name){
         var audio = new Audio('./sounds/' + name + '.mp3')
@@ -105,5 +139,8 @@ window.addEventListener('load', e =>{
         pse()
     })
 
+    tap_t.addEventListener('click',function(){
+        tap_temp()
+    })
     
 })
