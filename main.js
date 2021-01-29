@@ -5,13 +5,14 @@ window.addEventListener('load', e =>{
     var count = document.querySelector('#count')
     var tap_t = document.querySelector('#tap')
     var tmp_inp = document.querySelector('#tempo')
+    var tmp_rst = document.querySelector('#tmp_rst')
     var ctx = count.getContext('2d')
     var t_e = {}
     var cnt = 0
     var intID1
     var tap_i = 0
     var taps = []
-
+    var bpms = 4
 
     
     // average
@@ -40,13 +41,9 @@ window.addEventListener('load', e =>{
         diff_i = tap_i - 1
         now = new Date()
         taps.push(now.getTime())
-        if(taps.length > 1){
+        if(taps.length > 2){
             for(var i = 1; i < taps.length; i++){
                 diff.push(taps[i] - taps[i-1])
-                if(diff[i] > 1E4){
-                    taps = []
-                    taps.push(now.getTime())
-                }
             }
             tmp = Math.round(60/(mean(diff)/1000))
             tmp_inp.setAttribute('value',tmp.toString())
@@ -60,7 +57,7 @@ window.addEventListener('load', e =>{
     }
 
     // logs the beat
-    function beat(tempo,subdivision,bpms){ //bpms = beats per measure
+    function beat(tempo,subdivision){ //bpms = beats per measure
         delay = 60000/tempo // one beat
         
         // first loop handles beat
@@ -132,15 +129,22 @@ window.addEventListener('load', e =>{
     })
 
     start.addEventListener('click', e => {
-        beat(60,1,6)
+        beat(60,1)
     })
 
     pause.addEventListener('click', function(){
         pse()
+        
     })
 
     tap_t.addEventListener('click',function(){
         tap_temp()
     })
+    
+    tmp_rst.addEventListener('click',function(){
+        taps.length = 0
+    })
+
+
     
 })
