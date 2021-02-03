@@ -1,35 +1,84 @@
 window.addEventListener('load', e =>{
-    var strike = document.querySelector('#strike')
-    var start = document.querySelector('#start')
-    var pause = document.querySelector('#pause')
-    var count = document.querySelector('#count')
-    var tap_t = document.querySelector('#tap')
-    var tmp_inp = document.querySelector('#tempo')
-    var tmp_rst = document.querySelector('#tmp_rst')
-    var ctx = count.getContext('2d')
-    var t_e = {}
-    var cnt = 0
-    var intID1
-    var tap_i = 0
-    var taps = []
-    var bpms = 4
+    const strike = document.querySelector('#strike')
+    const start = document.querySelector('#start')
+    const pause = document.querySelector('#pause')
+    const canvas = document.querySelector('#canvas')
+    const bpms_inp = document.querySelector('#bpms')
+    const sub_inp = document.querySelector('#subdivision')
+    const tap_t = document.querySelector('#tap')
+    const tmp_inp = document.querySelector('#tempo')
+    const tmp_rst = document.querySelector('#tmp_rst')
+    const stk_snd = document.querySelector('#strike_sound')
+    const ctx = canvas.getContext('2d')
+    let tempo 
+    let strike_snd = {volume:0.2, name:"strike"}
+    let t_e = {}
+    let cnt = 0
+    let intID1
+    let tap_i = 0
+    let taps = []
+
+ 
+    // game display frame work
+    ctx.beginPath()
+    ctx.arc(200,235,150,7*Math.PI/6,11*Math.PI/6,false)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.moveTo(200,235)
+    ctx.lineTo(70,160)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.moveTo(200,235)
+    ctx.lineTo(330,160)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.moveTo(200,235)
+    ctx.lineTo(200,85)
+    ctx.stroke()
+
+    // draws game output
+    function error_draw(score){
+        max_er = Math.exp(6E4/tempo/subdivision/1000)
+        k = score/max_er
+        let angle
+
+        if(k > 0){
+            angle = 3*Math.PI/2 + k*4*Math.PI/9
+        }  
+        else{
+            angle = 7*Math.PI/6 - k*4*Math.PI/9
+
+        }
+        
+        ctx.beginPath()
+        ctx.moveTo(200,235)
+        ctx.lineTo(200 + 150*Math.cos(angle),235 + 150*Math.sin(angle))
+        ctx.stroke()
+
+    }
 
     
     // average
     function mean(arr){
         l = arr.length
-        var sum = 0
-        for(var i = 0; i < l; i++){
+        let sum = 0
+        for(let i = 0; i < l; i++){
             sum = sum + arr[i]
         }
         return sum/l
     }
 
     // count box setup
-    ctx.strokeRect(15,15,25,25)
-    ctx.fill()
+    ctx.strokeRect(15,15,45,45)
     ctx.fillText('1',25,26)
     
+    //border setup
+    ctx.strokeRect(0,0,canvas.width,canvas.height)
+    
+
     // pause
     function pse(){
         clearInterval(intID1)
@@ -42,29 +91,31 @@ window.addEventListener('load', e =>{
         now = new Date()
         taps.push(now.getTime())
         if(taps.length > 2){
-            for(var i = 1; i < taps.length; i++){
+            for(let i = 1; i < taps.length; i++){
                 diff.push(taps[i] - taps[i-1])
             }
             tmp = Math.round(60/(mean(diff)/1000))
             tmp_inp.setAttribute('value',tmp.toString())
         }
-        
     }
+
     // plays sound
-    function audio_play(name){
-        var audio = new Audio('./sounds/' + name + '.mp3')
+    function audio_play(name,volume){
+        let audio = new Audio('./sounds/' + name + '.mp3')
+        audio.volume = volume
         audio.play();
+        
     }
 
     // logs the beat
-    function beat(tempo,subdivision){ //bpms = beats per measure
+    function beat(){ //bpms = beats per measure
         delay = 60000/tempo // one beat
         
         // first loop handles beat
         intID1 = setInterval(function(){
-            var intID2 // interval id for subdivision clock
+            let intID2 // interval id for subdivision clock
             cnt += 1
-            ctx.clearRect(15,15,25,25) // clears countbox
+            ctx.clearRect(15,15,45,45) // clears countbox
             let sub_cnt = 1
             
             if(cnt > bpms){ // after count off
@@ -76,11 +127,9 @@ window.addEventListener('load', e =>{
                     if(sub_cnt == subdivision){
                         clearInterval(intID2)
                         sub_cnt = 1
-                        
                     }
                     else{
                         sub_cnt += 1
-                        
                     }
                 },delay/subdivision)
                 
@@ -93,48 +142,60 @@ window.addEventListener('load', e =>{
                 }
 
                 ctx.fillText(c.toString(),25,26)//updates count box
-
             }
             else{ // during count off
-                
                 ctx.fillText(cnt,25,26) // updates countbox
             }
-            
         },delay)
     }
 
 
     // evaluates timing accuracy
-    function timing(t_e,tempo,subdivision){
-        var t = new Date()
-        var t_o = t.getTime()
-        
+    function timing(){
+        let t = new Date()
+        let t_o = t.getTime()
+        let delta 
+        let score
         
         if(t_o > t_e + 6E4/tempo/subdivision){           // rushing  
-            var delta = t_e - t_o
-            var score = -Math.exp(delta/1000)
+            delta = t_e - t_o
+            score = -Math.exp(delta/1000)
         }
         else{                                    // dragging
-            var delta = t_o - t_e      
-            var score = Math.exp(delta/1000)
+            delta = t_o - t_e      
+            score = Math.exp(delta/1000)
         }
-
+        return score
     }
     
+    // resets values
+    function reset(){
+        taps.length = 0
+        bpms = []
+        tempo = []
+        subdivision = []
+        bpms_inp.value = ''
+        sub_inp.value = ''
+        tmp_inp.value = ''
+        ctx.clearRect(15,15,45,45)
+        ctx.fillText('1',25,26)
+    }
+
     
     strike.addEventListener('click',function(){
-        audio_play('strike')
-        timing(t_e,120,1)
-        
+        audio_play(strike_snd.name,strike_snd.volume)
+        error_draw(timing())
     })
 
-    start.addEventListener('click', e => {
-        beat(60,1)
+    start.addEventListener('click', function(){
+        tempo = parseFloat(tmp_inp.value)
+        bpms = parseFloat(bpms_inp.value)
+        subdivision = parseFloat(sub_inp.value)
+        beat()
     })
 
     pause.addEventListener('click', function(){
         pse()
-        
     })
 
     tap_t.addEventListener('click',function(){
@@ -142,9 +203,18 @@ window.addEventListener('load', e =>{
     })
     
     tmp_rst.addEventListener('click',function(){
-        taps.length = 0
+        reset()
     })
 
-
+    stk_snd.addEventListener('click',function(){
+        if(strike_snd.volume == 0.2){
+            stk_snd.textContent = "Strike Sound: Off"
+            strike_snd.volume = 0
+        }
+       else if(strike_snd.volume == 0){
+           stk_snd.textContent = "Strike Sound: On"
+           strike_snd.volume = 0.2
+       }
+    })
     
 })
