@@ -20,36 +20,42 @@ window.addEventListener('load', e =>{
 
  
     // game display frame work
-    ctx.beginPath()
-    ctx.arc(200,235,150,7*Math.PI/6,11*Math.PI/6,false)
-    ctx.stroke()
+    function disp_setup(){
+        ctx.beginPath()
+        ctx.arc(200,235,150,7*Math.PI/6,11*Math.PI/6,false)
+        ctx.stroke()
+    
+        ctx.beginPath()
+        ctx.moveTo(200,235)
+        ctx.lineTo(70,160)
+        ctx.stroke()
+    
+        ctx.beginPath()
+        ctx.moveTo(200,235)
+        ctx.lineTo(330,160)
+        ctx.stroke()
+    
+        ctx.beginPath()
+        ctx.moveTo(200,235)
+        ctx.lineTo(200,85)
+        ctx.stroke()
+    }
 
-    ctx.beginPath()
-    ctx.moveTo(200,235)
-    ctx.lineTo(70,160)
-    ctx.stroke()
-
-    ctx.beginPath()
-    ctx.moveTo(200,235)
-    ctx.lineTo(330,160)
-    ctx.stroke()
-
-    ctx.beginPath()
-    ctx.moveTo(200,235)
-    ctx.lineTo(200,85)
-    ctx.stroke()
+    disp_setup()
 
     // draws game output
     function error_draw(score){
+        ctx.clearRect(65,80,265,165)
+        disp_setup()
         max_er = Math.exp(6E4/tempo/subdivision/1000)
         k = score/max_er
         let angle
 
         if(k > 0){
-            angle = 3*Math.PI/2 + k*4*Math.PI/9
+            angle = 3*Math.PI/2 - (Math.PI/3)*(score - 1)/(max_er - 1)
         }  
         else{
-            angle = 7*Math.PI/6 - k*4*Math.PI/9
+            angle = 3*Math.PI/2 - (Math.PI/3)*(score + 1)/(max_er - 1)
 
         }
         
@@ -57,7 +63,8 @@ window.addEventListener('load', e =>{
         ctx.moveTo(200,235)
         ctx.lineTo(200 + 150*Math.cos(angle),235 + 150*Math.sin(angle))
         ctx.stroke()
-
+        // console.log(score)
+        // console.log(max_er)
     }
 
     
@@ -156,15 +163,16 @@ window.addEventListener('load', e =>{
         let t_o = t.getTime()
         let delta 
         let score
-        
-        if(t_o > t_e + 6E4/tempo/subdivision){           // rushing  
-            delta = t_e - t_o
+        // delta = t_o - t_e
+        if(t_o > t_e + 6E4/tempo/subdivision/2){           // rushing  
+            delta = t_e + 6E4/tempo/subdivision - t_o
             score = -Math.exp(delta/1000)
         }
         else{                                    // dragging
             delta = t_o - t_e      
             score = Math.exp(delta/1000)
         }
+        console.log(score)
         return score
     }
     
