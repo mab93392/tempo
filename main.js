@@ -9,9 +9,15 @@ window.addEventListener('load', e =>{
     const tmp_inp = document.querySelector('#tempo')
     const tmp_rst = document.querySelector('#tmp_rst')
     const stk_snd = document.querySelector('#strike_sound')
+    const bt_snd = document.querySelector('#beat_sound')
+    const subd_snd = document.querySelector('#sub_div_sound')
+    const cnt_snd = document.querySelector('#cntdn_sound')
     const ctx = canvas.getContext('2d')
     let tempo 
-    let strike_snd = {volume:0.2, name:"strike"}
+    let strike_snd = {volume: 0.2, name:'strike'}
+    let beat_snd = {volume: 0.2, name:'beat'}
+    let subdiv_snd = {volume: 0.2, name:'subdiv'}
+    let cntdn_snd = {volume: 0.2, name:'cntdn'}
     let t_e = {}
     let cnt = 0
     let intID1
@@ -41,7 +47,7 @@ window.addEventListener('load', e =>{
         ctx.stroke()
     }
 
-    disp_setup()
+    disp_setup() // initializes display
 
     // draws game output
     function error_draw(score){
@@ -63,8 +69,7 @@ window.addEventListener('load', e =>{
         ctx.moveTo(200,235)
         ctx.lineTo(200 + 150*Math.cos(angle),235 + 150*Math.sin(angle))
         ctx.stroke()
-        // console.log(score)
-        // console.log(max_er)
+
     }
 
     
@@ -125,6 +130,7 @@ window.addEventListener('load', e =>{
             ctx.clearRect(15,15,45,45) // clears countbox
             let sub_cnt = 1
             
+            audio_play(beat_snd.name,beat_snd.volume)
             if(cnt > bpms){ // after count off
                 
                 intID2 = setInterval(function(){
@@ -152,6 +158,7 @@ window.addEventListener('load', e =>{
             }
             else{ // during count off
                 ctx.fillText(cnt,25,26) // updates countbox
+                audio_play(cntdn_snd.name,cntdn_snd.volume)
             }
         },delay)
     }
@@ -163,7 +170,7 @@ window.addEventListener('load', e =>{
         let t_o = t.getTime()
         let delta 
         let score
-        // delta = t_o - t_e
+
         if(t_o > t_e + 6E4/tempo/subdivision/2){           // rushing  
             delta = t_e + 6E4/tempo/subdivision - t_o
             score = -Math.exp(delta/1000)
@@ -172,7 +179,7 @@ window.addEventListener('load', e =>{
             delta = t_o - t_e      
             score = Math.exp(delta/1000)
         }
-        console.log(score)
+
         return score
     }
     
@@ -222,7 +229,41 @@ window.addEventListener('load', e =>{
        else if(strike_snd.volume == 0){
            stk_snd.textContent = "Strike Sound: On"
            strike_snd.volume = 0.2
-       }
+        }
     })
+
+    bt_snd.addEventListener('click',function(){
+        if(beat_snd.volume == 0.2){
+            bt_snd.textContent = "Beat Sound: Off"
+            beat_snd.volume = 0
+        }
+       else if(beat_snd.volume == 0){
+           bt_snd.textContent = "Beat Sound: On"
+           beat_snd.volume = 0.2
+        }
+    })
+
+    subd_snd.addEventListener('click', function(){
+        if(subdiv_snd.volume == 0.2){
+            subd_snd.textContent = "Subdivision Sound: Off"
+            beat_snd.volume = 0
+        }
+       else if(subdiv_snd.volume == 0){
+           subd_snd.textContent = "Subdivision Sound: On"
+           subdiv_snd.volume = 0.2
+        }
+    })
+
+    cnt_snd.addEventListener('click',function(){
+        if(cntdn_snd.volume == 0.2){
+            cnt_snd.textContent = "Count Off Sound: Off"
+            cntdn_snd.volume = 0
+        }
+       else if(cntdn_snd.volume == 0){
+           cnt_snd.textContent = "Count Off Sound: On"
+           cntdn_snd.volume = 0.2
+        }
+    })
+
     
 })
